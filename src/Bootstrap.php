@@ -99,9 +99,9 @@ class Bootstrap implements BootstrapInterface
 
                 if (!is_a($packageBootstrapClass, BootstrapInterface::class, true)) {
                     continue;
-                }        
-                
-                $this->getContainer()->get($packageBootstrapClass);
+                }
+                $bootstrap = $this->getContainer()->get($packageBootstrapClass);
+                $bootstrap->boot();
 
             } catch (\Psr\Container\NotFoundExceptionInterface) {
                 continue;
