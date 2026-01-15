@@ -1,0 +1,33 @@
+{
+    "name": "juzdy/core",
+    "description": "The JUZDY core",
+    "keywords": ["php", "psr"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Victor Galitsky",
+            "email": "concept.galitsky@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "psr/container": "^2.0",
+        "psr/simple-cache": "^3.0",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/http-server-handler": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Juzdy\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+        }
+    },
+    "extra": {
+    },
+    "config": {
+    }
+}
