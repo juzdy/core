@@ -44,7 +44,5 @@ interface CollectionInterface extends IteratorAggregate
 
     public function join(string|array $table, string $on, string $type = 'INNER'): static;
 
-    public function applyPostFilters(array $filters): static;
-
     public function getIterator(): \Traversable;
 }

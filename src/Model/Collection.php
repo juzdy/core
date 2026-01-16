@@ -282,29 +282,6 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Apply post-filters to the collection.
-     * This method is used to apply filters after the initial query has been built.
-     *
-     * @param array $filters Associative array of field => value pairs
-     * @return static
-     */
-    public function applyPostFilters(array $filters): static
-    {
-        foreach ($filters as $key => $value) {
-            if (empty($value)) {
-                continue; // Skip empty filters
-            }
-            if (is_array($value)) {
-                $this->addFilter([$key => $value]);
-            } else {
-                $this->addFilter([$key => '%' . $value . '%']);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Get the filters applied to the collection.
      *
      * @return array
