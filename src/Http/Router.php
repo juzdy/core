@@ -42,7 +42,7 @@ class Router implements HandlerInterface, MiddlewareInterface
      * This method is called by the middleware pipeline.
      *
      * @param Request $request
-     * @return void
+     * @return ResponseInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
