@@ -76,4 +76,23 @@ abstract class Handler implements HandlerInterface, MiddlewareAwareInterface
             ->header('Location', $route);
     }
 
+    /**
+     * Redirect to the referer URL
+     *
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     */
+    protected function redirectReferer(RequestInterface $request): ResponseInterface
+    {
+        $referer = $request->server('HTTP_REFERER') ?? '/';
+        
+        // Only allow redirects to the current domain
+        
+        $refererHost = parse_url($referer, PHP_URL_HOST);
+        $referer = preg_replace('#^[a-z][a-z0-9+.-]*://#i', '', $referer);
+        $referer =  str_replace($refererHost, '', $referer);
+                
+        return $this->redirect($referer);
+    }
+
 }
