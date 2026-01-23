@@ -34,7 +34,14 @@ interface RequestInterface //extends Psr\Http\Message\ServerRequestInterface
      */
     public function isGet(): bool;
 
-    
+    /**
+     * Get a specific header value.
+     * 
+     * @param string $key The header name
+     * 
+     * @return string|null The header value or null if not found
+     */
+    public function header(string $key): ?string;
 
     /**
      * Get a value from the request (checks in order: server, get, post, session, cookie).
@@ -111,7 +118,6 @@ interface RequestInterface //extends Psr\Http\Message\ServerRequestInterface
      *                          or the entire cookies array if $key is null
      */
     public function cookie(?string $key = null, mixed $value = null): mixed;
-
     
 
     /**

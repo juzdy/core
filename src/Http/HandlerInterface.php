@@ -1,8 +1,6 @@
 <?php
 namespace Juzdy\Http;
 
-use Juzdy\Http\Middleware\MiddlewareInterface;
-
 /**
  * PSR-15-inspired Request Handler Interface
  * 

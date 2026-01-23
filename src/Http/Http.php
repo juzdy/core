@@ -27,7 +27,7 @@ use Juzdy\Http\Middleware\MiddlewareInterface;
  *
  * @package Juzdy\Http
  */
-class Http implements AppInterface, LazyGhostInterface, InjectableInterface, PrototypeInterface, SharedInterface
+class Http implements AppInterface, InjectableInterface, PrototypeInterface, SharedInterface
 {
     /**
      * @var RequestInterface|null

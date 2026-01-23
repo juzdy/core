@@ -1,7 +1,6 @@
 <?php
 namespace Juzdy\Http;
 
-use Juzdy\Container\Attribute\Initializer;
 use Juzdy\Http\Handler\MiddlewareTrait;
 use Juzdy\Http\Handler\RenderTrait;
 
@@ -10,9 +9,24 @@ abstract class Handler implements HandlerInterface, MiddlewareAwareInterface
     use MiddlewareTrait;
     use RenderTrait;
 
+    /**
+     * {@inheritDoc}
+     */
+    public function handle(RequestInterface $request): ResponseInterface
+    {
+        throw new \Exception('Not implemented');
+    }
+
+
+    /**
+     * Get the route path for this handler
+     *
+     * @return string The route path
+     */
     public static function route(): string
     {
-        return Router::route(static::class);
+        return strtolower(preg_replace('/.*?Handler$/', '', str_replace('\\', '/', static::class)));
+        //return Router::route(static::class);
     }
 
     /**
@@ -20,16 +34,6 @@ abstract class Handler implements HandlerInterface, MiddlewareAwareInterface
      */
     private ?ResponseInterface $response = null;
 
-    /**
-     * Initialization method called by Container after construction.
-     *
-     * @return void
-     */
-    #[Initializer]
-    protected function init(): void
-    {
-        $this->registerMiddleware();   
-    }
 
     /**
      * Get or create the response object.
@@ -41,14 +45,7 @@ abstract class Handler implements HandlerInterface, MiddlewareAwareInterface
         return $this->response ??= new Response();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function handle(RequestInterface $request): ResponseInterface
-    {
-        throw new \Exception('Not implemented');
-    }
-
+    
     /**
      * Redirect to a given URL
      *
@@ -78,20 +75,17 @@ abstract class Handler implements HandlerInterface, MiddlewareAwareInterface
 
     /**
      * Redirect to the referer URL
+     * Only paths are allowed for security reasons.
      *
-     * @param RequestInterface $request
-     * @return ResponseInterface
+     * @param RequestInterface $request The request object
+     * 
+     * @return ResponseInterface The redirect response
      */
     protected function redirectReferer(RequestInterface $request): ResponseInterface
     {
-        $referer = $request->server('HTTP_REFERER') ?? '/';
-        
-        // Only allow redirects to the current domain
-        
-        $refererHost = parse_url($referer, PHP_URL_HOST);
-        $referer = preg_replace('#^[a-z][a-z0-9+.-]*://#i', '', $referer);
-        $referer =  str_replace($refererHost, '', $referer);
-                
+        $referer = $request->header('Referer') ?? '/';
+        $referer = preg_replace('#^[a-zA-Z][a-zA-Z0-9+.-]*://[^/]*#', '', $referer);
+
         return $this->redirect($referer);
     }
 

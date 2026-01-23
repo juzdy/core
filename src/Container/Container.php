@@ -2,8 +2,8 @@
 
 namespace Juzdy\Container;
 
-use Juzdy\Container\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
+use Juzdy\Container\Exception\NotFoundException;
 use Juzdy\Container\Context\Context;
 use Juzdy\Container\Context\ContextInterface;
 use Juzdy\Container\Exception\CircularDependencyException;
@@ -157,6 +157,9 @@ class Container implements JuzdyContainerInterface
         try {
             $context = new Context($id, $this);
 
+            /**
+             * @todo More robust check for instantiability
+             */
             return $context->reflection()->isInstantiable();
 
         } catch (Throwable) {
@@ -164,24 +167,6 @@ class Container implements JuzdyContainerInterface
         }
 
         return false;
-    }
-
-    protected function hasLocal(string $id): bool
-    {
-        return array_key_exists($id, $this->services);
-    }
-
-    
-    protected function getLocal(string $id): mixed
-    {
-        return $this->services[$id];
-    }
-
-    protected function forget(string $id): static
-    {
-        unset($this->services[$id]);
-
-        return $this;
     }
 
     /**
@@ -209,8 +194,25 @@ class Container implements JuzdyContainerInterface
 
         return $service;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function share(string $id, mixed $instance): static
+    {
+        $this->services[$id] = $instance;
+
+        return $this;
+    }
     
-    
+    /**
+     * Require the service with the given identifier.
+     * Pipelines through require plugins.
+     *
+     * @param string $id The service identifier
+     * 
+     * @return mixed The required service instance
+     */
     protected function require(string $id): mixed
     {
         $context = new Context($id, $this);
@@ -221,12 +223,38 @@ class Container implements JuzdyContainerInterface
 
         return $context->instance();
     }
+
     /**
-     * {@inheritDoc}
+     * Check if the local service is registered.
+     * 
+     * @param string $id The service identifier
+     * 
+     * @return bool True if the local service is registered, false otherwise
      */
-    public function share(string $id, mixed $instance): static
+    protected function hasLocal(string $id): bool
     {
-        $this->services[$id] = $instance;
+        return array_key_exists($id, $this->services);
+    }
+
+    
+    /**
+     * Get the local shared service.
+     * 
+     * @param string $id The service identifier
+     * 
+     * @return mixed The local shared service instance
+     */
+    protected function getLocal(string $id): mixed
+    {
+        return $this->services[$id];
+    }
+
+    /**
+     * Forget a shared service.
+     */
+    protected function forget(string $id): static
+    {
+        unset($this->services[$id]);
 
         return $this;
     }
@@ -274,7 +302,7 @@ class Container implements JuzdyContainerInterface
      * 
      * @return static
      */
-    private function resolve(ContextInterface $context): static
+    protected function resolve(ContextInterface $context): static
     {
         foreach ($context->constructor()?->getParameters() ?? [] as $param) {
             //try {
@@ -322,7 +350,7 @@ class Container implements JuzdyContainerInterface
      * 
      * @return static
      */
-    private function aware(ContextInterface $context): static
+    protected function aware(ContextInterface $context): static
     {
         $this->getAwareManager()
                 ->process($context);
@@ -337,7 +365,7 @@ class Container implements JuzdyContainerInterface
      * 
      * @return static
      */
-    private function lifecycle(ContextInterface $context): static
+    protected function lifecycle(ContextInterface $context): static
     {
         $this->getLifecycleManager()
                 ->process($context);
@@ -406,6 +434,13 @@ class Container implements JuzdyContainerInterface
     }
 
 
+    /**
+     * Get or create the lifecycle plugin manager.
+     * 
+     * @param PluginInterface ...$plugins Plugins to register
+     *
+     * @return PluginManagerInterface The lifecycle plugin manager
+     */
     protected function getLifecycleManager(PluginInterface ...$plugins): PluginManagerInterface
     {
         if ($this->lifecycleManager === null) {
@@ -419,6 +454,13 @@ class Container implements JuzdyContainerInterface
         return $this->lifecycleManager;
     }
 
+    /**
+     * Get or create the require plugin manager.
+     * 
+     * @param PluginInterface ...$plugins Plugins to register
+     *
+     * @return PluginManagerInterface The require plugin manager
+     */
     protected function getRequireManager(PluginInterface ...$plugins): PluginManagerInterface
     {
         

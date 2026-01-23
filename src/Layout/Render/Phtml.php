@@ -5,6 +5,12 @@ use Closure;
 
 class Phtml
 {
+
+    public function __construct(protected string $template)
+    {
+        
+    }
+
     public function render(object $scope, string $template): string
     {
         return Closure::bind(function() use ($template) {

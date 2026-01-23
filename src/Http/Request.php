@@ -94,6 +94,27 @@ class Request implements RequestInterface
     /**
      *{@inheritdoc}
      */
+    public function header(string $key): ?string
+    {
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        } else {
+            // Fallback for servers without getallheaders()
+            $headers = [];
+            foreach ($this->server() as $name => $value) {
+                if (str_starts_with($name, 'HTTP_')) {
+                    $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $headers[$headerName] = $value;
+                }
+            }
+        }
+
+        return $headers[$key] ?? null;
+    }
+
+    /**
+     *{@inheritdoc}
+     */
     public function request(string $key): mixed
     {
         return $this->server($key) ?? $this->query($key) ?? $this->post($key) ?? $this->session($key) ?? $this->cookie($key) ?? null;
